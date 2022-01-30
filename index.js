@@ -1,49 +1,76 @@
-const colors = require("colors");
+const EventEmitter = require("events");
+const emitter = new EventEmitter();
 
-const checkNumber = (x, y) => {
-    const arg1 = Number(x);
-    const arg2 = Number(y);
-    console.log(arg1, arg2);
-    if (arg1 > 2 || arg2 > arg1 || isNaN(arg1) != true || isNaN(arg2) != true) {
-        let primeNumbers = [];
-        for (let i = arg1; i <= arg2; i++) {
-            let y = 0;
-            for (let a = 2; a < i; a++) {
-                if (i % a == 0) {
-                    y = 1;
-                }
+/* const years = process.argv[2];
+const months = process.argv[3];
+const days = process.argv[4];
+const hours = process.argv[5];
+const minutes = process.argv[6];
+const seconds = process.argv[7]; */
+
+const generateTimer = () => {
+    let id = 1;
+    setInterval(() => {
+        createTimer([12, 0, 0, 0, 0, 0], id);
+        id = id + 1;
+    }, 10000)
+}
+
+const createTimer = (time, id = 1) => {
+    for (let i = 0; i <= 5; i++) {
+        if (time[i] === undefined) {
+            time[i] = 0;
+        }
+    }
+    console.log(`${time[5]}-${time[4]}-${time[3]}-${time[2]}-${time[1]}-${time[0]}. Таймер ${id}`);
+    const timer = setInterval(() => {
+        for (let i = 0; i <= 5; i++) {
+            if (time[i] != 0) {
+                time[i] = time[i] - 1;
+                break;
             }
-            if (y == 0) {
-                primeNumbers.push(i);
+            else if (time[i] == 0 && time[i + 1] != 0 && i < 2) {
+                time[i] = 59;
+                time[i + 1] = time[i + 1] - 1;
+                break;
             }
-        };
-        if (primeNumbers.length == 0) {
-            console.log(colors.red("В указанном диапазоне нет простых чисел"));
+            else if (time[i] == 0 && time[i + 1] != 0 && i == 2) {
+                time[2] = 23;
+                time[1] = 59;
+                time[0] = 59;
+                time[i + 1] = time[i + 1] - 1;
+                break;
+            }
+            else if (time[i] == 0 && time[i + 1] != 0 && i == 3) {
+                time[3] = 30;
+                time[2] = 23;
+                time[1] = 59;
+                time[0] = 59;
+                time[i + 1] = time[i + 1] - 1;
+                break;
+            }
+            else if (time[i] == 0 && time[i + 1] != 0 && i == 4) {
+                time[4] = 11;
+                time[3] = 30;
+                time[2] = 23;
+                time[1] = 59;
+                time[0] = 59;
+                time[i + 1] = time[i + 1] - 1;
+                break;
+            }
+        }
+        if (time[0] == 0 && time[1] == 0 && time[2] == 0 && time[3] == 0 && time[4] == 0 && time[5] == 0) {
+            emitter.emit("tick", `Время истекло. Таймер ${id}`);
+            clearInterval(timer);
         }
         else {
-            let s = 1;
-            for (let i of primeNumbers) {
-                if (s == 1) {
-                    console.log(colors.green(i));
-                    s = 2;
-                }
-                else if (s == 2) {
-                    console.log(colors.yellow(i));
-                    s = 3;
-                }
-                else if (s == 3) {
-                    console.log(colors.red(i));
-                    s = 1;
-                }
-            }
+            emitter.emit("tick", `${time[5]}-${time[4]}-${time[3]}-${time[2]}-${time[1]}-${time[0]}. Таймер ${id}`);
         }
-    }
-    else if (arg1 < 2 || arg2 < arg1) {
-        console.log(colors.red("Ошибка. Первый аргумент должен быть больше двух, а второй должен быть больше первого"));
-    }
-    else if (isNaN(arg1) === true || isNaN(arg2) === true) {
-        console.log(colors.red("Ошибка. Аргументы должны быть числами"));
-    }
-};
+    }, 1000)
+}
 
-checkNumber(process.argv[2], process.argv[3]);
+emitter.on("tick", console.log);
+
+generateTimer();
+
+/* createTimer([seconds, minutes, hours, days, months, years]); */
